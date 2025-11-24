@@ -1,2 +1,4 @@
 data/
-nba_env/
+.venv/
+.env
+.DS_Store

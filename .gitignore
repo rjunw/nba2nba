@@ -1,4 +1,8 @@
 data/
+models/
 .venv/
 .env
 .DS_Store
+*.pth
+mlflow.db
+mlruns/

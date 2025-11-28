@@ -3,5 +3,6 @@ data/
 .env
 .DS_Store
 *.pth
+*.pt
 mlflow.db
 mlruns/

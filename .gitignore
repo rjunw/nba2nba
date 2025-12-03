@@ -6,3 +6,4 @@ data/
 *.pt
 mlflow.db
 mlruns/
+__pycache__

@@ -10,6 +10,8 @@ An E2E system for generating next best actions for given NBA scenarios (offense 
 - ~~Fine-tune YOLOv11 for keypoint detection -> Homography transform to get top-down court view~~
 - Transform sequence of top-down court into vector embeddings for vector retrieval
 - Translate time series of vector embeddings into human-readable actions for Gemini to generate next best actions
+- Serve models as API endpoints (FastAPI)
+- Implement Streamlit UI for interactive UX (including video player (tracking/bounding boxes similar to NBA2K UI (?)), play-by-play, etc.)
 
 ## Overview
 

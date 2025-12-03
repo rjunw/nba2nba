@@ -6,6 +6,10 @@
 
 OD serves as a core component of many computer vision tasks, including but not limited to *image segmentation*, *keypoint detection*, *visual question answering*, and *pose estimation*.
 
+A diagram from [^fn3]
+
+![alt text](attachments/image-3.png)
+
 ## OD Metrics
 
 In practice, OD relies heavily on being both *accurate* in terms of object localization/classification, and *low latency*, as many practical applications require real-time processing. The following section will cover the metrics used to evaluate OD models[^fn2].
@@ -174,11 +178,66 @@ Current methods are classified as *one-stage detectors*, providing an end-to-end
 
 ### Context Priming
 
+*Context priming* is how we use context between objects and environments to improve detection.
+
+- *(Local context)*. We explore visual info locally around objects, e.g. including a little bit of background image into the object region
+- *(Global context)*. Traditionally, integrate statisical summaries of scene. Modern methods increase receptive fields, or apply attention.
+- *(Context interactive)*. Explore and exploit the constraints/dependencies between objects and environments.
+
 ### Sample Selection
+
+Detector training is an imbalanced problem, i.e. there are way more background and non-target objects than target objects. To address this, we use *hard negative mining* (i.e. focus on hard, mis-classified examples).
+
+- *(Bootstrap)*. Start with small background samples, and iteratively add any mis-classified samples (helping reduce computation too).
+- *(Weight balancing)*. Bootstrap is too intensive with deep learning, so we use class weights to balance the loss. This isn't great though, bootstrapping is still better, even accounting for computational cost.
 
 ### Loss Functions
 
+Unlike sample selection, we can design loss functions to focus more on hard, mis-classified examples. Object detection loss combines classification and bounding box regression loss (i.e. *localization loss*). Let $p, p^*$ be the predicted and true class probabilities, $t, t^*$ be the predicted and true bounding boxes. Then the object detection loss is given by
+$$
+\begin{align*}
+L(p, p^*, t, t^*) &= L_{cls}(p, p^*) + \beta I(t) L_{loc}(t, t^*)\\
+I(t) &= \begin{cases}
+1 & \text{IoU}\{a, a^*\} > \eta \qquad \text{ (object match)}\\
+0 & \text{otherwise}
+\end{cases}
+\end{align*}
+$$
+
+- *(Classification loss)*. This is classic classification loss, e.g. $L_{CE}$. $L_{\text{FOCAL}}$ is a variant that puts more emphasis on hard examples.
+- *(Smooth L1 loss)*. This is a localization loss used to optimize position and size deviation, e.g. $L_2$. $L_2$ is prone to gradient explosion, so $\text{Smooth}_{L1}$ combines $L_1$ and $L_2$. Let $x$ be the difference between target and prediction (i.e. $x - x^*, y - y^*, w - w^*, h - h^*$).
+
+$$
+\text{Smooth}_{L1}(x) = \begin{cases}
+\frac{1}{2}x^2 & \text{if } |x| < 1\\
+|x| - \frac{1}{2} & \text{otherwise}
+\end{cases}
+$$
+
+- *(IoU loss)*. $\text{Smooth}_{L1}$ doesn't exploit the correlation between coordinates of a bounding box$(x, y, w h)$. So we use IoU loss
+
+$$
+L_{\text{IoU}} = -\log \text{IoU}
+$$
+
 ### Non-Maximum Suppression
+
+Neighbouring windows tend to have similar detection scores, so we use NMS as post-processing to remove the redundant detections.
+
+- *(Greedy selection)*. For each set of overlapping boxes (using a overlap threshold), choose the box with the maximum detection score. This is the most common method.
+- *(Bounding box aggregation)*. Union clusters of overlapping boxes, allowing intake of object relationships and spatial context.
+- *(Learning-based NMS)*. Use NMS as a filter for re-scoring raw detections, then train NMS as part of the network to mimic normal NMS.
+- *(NMS-free detection)*. Complete one-to-one label object-box mapping using the highest quality box for training.
+
+## Detection Optimization
+
+To speed-up detection computation, there are many adjustments on network architectures made.
+
+- Reducing redundancy by computing feature maps for a given image only once
+- Coarse-to-fine detection to filter out simpler windows first
+- Neural net pruning, quantization, quantification. These reduce parameter counts/data type size, and help binarize some operations such that float operations are reduced to logical operations
+- Lightweight detector design includes choosing smaller more efficient convolutions, grouped convolutions (e.g. depth-wise separable convolutions), bottle-necks, and NAS
+- Numerical acceleration such as integral images, fourier transforms to work in the frequency domain, and vector quantization for data compression
 
 ## YOLO
 
@@ -186,9 +245,13 @@ Current methods are classified as *one-stage detectors*, providing an end-to-end
 
 ## RF-DETR
 
-Unlike YOLO, RF-DETR does not require NMS, and also uses relatively minimal data augmentations to achieve state-of-the-art performance.
+Unlike YOLO, RF-DETR does not require NMS, and also uses relatively o\==drminimal data augmentations to achievhgb[pfe state-of-the-art performance.
 
 ## Sources
 
 [^fn1]:[Object Detection in 20 Years: A Survey](https://arxiv.org/pdf/1905.05055)
 [^fn2]:[mAP for Object Detection](https://jonathan-hui.medium.com/map-mean-average-precision-for-object-detection-45c121a31173)
+[^fn3]: [RF-DETR vs. YOLO](https://farukalamai.substack.com/p/rf-detr-vs-yolov12-a-comprehensive)
+[^fn4]: [You Only Look Once: Unified, Real-Time Object Detection](https://arxiv.org/pdf/1506.02640)
+[^fn5]: [YOLOv11: An Overview of the Key Architectural Enhancements](https://arxiv.org/pdf/2410.17725)
+[^fn6]: [RF-DETR: Neural Architecture Search for Real-Time Object Detection](https://arxiv.org/pdf/2511.09554)

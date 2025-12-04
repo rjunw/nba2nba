@@ -22,7 +22,7 @@ TODO: Input system flowchart here.
 
 Current project status:
 
-![alt text](./assets/tracking_demo.mp4)
+<img src="https://imgur.com/rWyuvz3.gif" alt="tracking demo" width="50%" height="50%">
 
 ## How to run
 

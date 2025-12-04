@@ -105,7 +105,7 @@ Tracking by detection is a paradigm in MOT, where powerful object detectors (e.g
 
 This is the use of tracking to improve detection performance[^fn2]. This involes methods that perform motion prediction on tracklets to fuse predicted locations with detections or as downstream feature representations.
 
-- Most methods MOT methods only keep detection boxes > $\text{IoU}=0.5$
+- Most MOT methods only keep detection boxes > $\text{IoU}=0.5$
 
 ## ByteTrack[^fn2]
 

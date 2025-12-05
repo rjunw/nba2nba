@@ -7,6 +7,9 @@ An E2E system for generating next best actions for given NBA scenarios (offense 
 - ~~Fine-tune RF-DETR for NBA player detection~~
 - ~~Implement ByteTrack/DeepSORT for multi-object tracking~~
 - Implement OCR for jersey number detection, to map tracking IDs to players, teams, and stats
+  - We only want to track players, so filter out bboxes corresponding to non-players
+  - Keep track of current team and jersey number for each tracklet, when tracks are lost/reappeared, update jersey number
+  - If at analysis time, there are ambiguous player IDs, pass in image sequence corresponding to tracklet to LLM to get a best guess
 - Implement scene transition detection to separate different plays (and re-run tracking if needed)
 - ~~Fine-tune YOLOv11 for keypoint detection -> Homography transform to get top-down court view~~
 - Transform sequence of top-down court into vector embeddings for vector retrieval

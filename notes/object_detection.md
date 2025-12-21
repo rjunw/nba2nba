@@ -241,11 +241,73 @@ To speed-up detection computation, there are many adjustments on network archite
 
 ## YOLO
 
+![alt text](attachments/image-22.png)
+
+- $S \times S$ grid cells
+- $B$ bounding boxes per cell ($x, y, w, h, \text{box confidence}$)
+- $C$ classes ($\text{class confidence}$)
+
+![alt text](attachments/image-21.png)
+
 *You Only Look Once (YOLO)* is a real-time capable one-stage detector, i.e. it applies a single neural network to the full image. At a high level, YOLO-based models work by dividing the image into a grid of cells, and for each cell, they simultaneously predict the bounding box and class of the objects present. *Non-max suppression (NMS)* is then used as a post-processing step to remove overlapping bounding boxes.
+
+### YOLOv12
+
+![alt text](attachments/image-20.png)
+
+This newest iteration of YOLO blurs the lines between CNNs and Transformers. Multi-scale feature fusion is combined with residual connections to address the gradient bottleneck. Larger 7x7 separable convolutions are used to increase receptive field. Flash attention is used on region-divded feature maps, and so processes all regions with equal computational effort regardless of their importance (unlike deformable attention).
 
 ## RF-DETR
 
-Unlike YOLO, RF-DETR does not require NMS, and also uses relatively o\==drminimal data augmentations to achievhgb[pfe state-of-the-art performance.
+Unlike YOLO, RF-DETR does not require NMS, and also uses relatively minimal data augmentations to achieve state-of-the-art performance. Furhtermore, RF-DETR uses a unified feature representation without the need for hierarchical feature pyramids as in CNNs.
+
+![alt text](attachments/image-18.png)
+
+### A Quick Detour into DINOv2
+
+RF-DETR uses a DINOv2 (DIstillation with NO labels v2) ViT backbone pre-trained via self-supervised learning.
+
+#### Automated Data Curation
+
+DINOv2 uses automatically curated data to perform self-supervised pretraining:
+
+- Copy detection is applied to uncurated data to remove near-duplicates and redundancy
+- ViT-H/16 is pretrained on ImageNet-22k as an image embedding model, and $k$-means clustering is applied to uncurated embeddings
+- As a retrieval system, curated images are queried against the vector space of uncurated images, retrieving nearest neighbors for each curated image
+
+#### Discriminant Self-Supervised Pretraining
+
+DINOv2 uses a combination of image-level and patch-level objectives to perform self-supervised pretraining:
+
+*(Image-level objective)*.  Cross-entropy loss between student and teacher features coming from the class token of ViT (different crops of same image). 
+
+- Student class token passes through student DINO head (MLP outputting *prototype scores* that are softmaxed, $p_s$)
+- Teacher DINO head is applied to teacfher class and softmaxed and moving average centering for $p_t$
+- Teacher is essentially student's weight momentum, preventing mode collapse when teacher/student are the same
+  - I.e. weights are trained via $\theta_t = \lambda \theta_t + (1 - \lambda) \theta_s$, not gradient descent
+
+$$
+\mathcal{L}_{DINO} = -\sum p_t \log p_s
+$$
+
+![alt text](attachments/image-19.png)
+
+Essentially, we have a made-up classification problem where we want our network to learn meaningful global representations from local views (i.e. learn feature representations similar to the teacher). Sepcifically, we want our student to interpolate context from small random crops.
+
+*(Patch-level objective)*. Let's randomly mask patches of an image input into the student, but not the teacher. Similar to image-level objective, we want our student to interpolate context from small random patches indexed by $i$.
+
+- Student gets masked images and tries to predict embeddings for the patches, using teacher unmasked embeddings as groudn truth
+
+$$
+\mathcal{L}_{IBOT} = -\sum p_{t, i} \log p_{s, i}
+$$
+
+### Deformable Attention
+
+This is a variant of self-attention that allows for global context with reduced computational cost. Instead of attention at every location, we sample from sparsely distributed key points.
+
+- Model predicts 2D reference point for query, then an MLP takes query and predicts $K$ offsets deforming the sampling grid (moving attention points)
+- Billinear interpolation is used to prevent fractional coordinates
 
 ## Sources
 

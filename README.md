@@ -7,7 +7,7 @@ An E2E system for generating next best actions for given NBA scenarios (offense 
 - ~~Fine-tune RF-DETR for NBA player detection~~
 - ~~Implement ByteTrack/DeepSORT for multi-object tracking~~
 - ~~Implement OCR for jersey number detection, to map tracking IDs to players, teams, and stats~~
-  - Had fun implementing a CNN-Transformer CTC OCR model from scratch, but it's not as accurate as I'd like, so I'm going to use a pre-trained model and fine-tune if necessary
+  - Had fun implementing a CNN-Transformer CTC OCR model from scratch, but it's not as accurate as I'd like, so I'm going to use a pre-trained model and fine-tune if necessary (let's fine-tune a VLM)
   - We only want to track players, so filter out bboxes corresponding to non-players
   - Keep track of current team and jersey number for each tracklet, when tracks are lost/reappeared, update jersey number
   - If at analysis time, there are ambiguous player IDs, pass in image sequence corresponding to tracklet to LLM to get a best guess

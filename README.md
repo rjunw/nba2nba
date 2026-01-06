@@ -24,7 +24,14 @@ TODO: Input system flowchart here.
 
 ## Demo
 
-Current project status:
+Current project status (still in notebook-phase as I explore and implement all the moving parts, and make sure they work):
+
+- `notebooks/rf_detr_od_finetuning.ipynb`: I fine-tune RF-DETR for NBA player detection
+- `notebooks/yolov11_kpd_finetuning.ipynb`: I fine-tune YOLOv11 for court keypoint detection
+- `notebooks/homography.ipynb`: I learn a Homography to transform court keypoints to a tactical map, then subsequently transform player/ref/ball coordinates detected from RF-DETR
+- `notebooks/bytetrack.ipynb`: I apply ByteTrack source code to the fine-tuned RF-DETR model to track and identify unique players during the gameplay video sequence
+- `notebooks/ocr.ipynb`: I implement a CNN-Transformer CTC OCR model from scratch and train on NFL jersey's as a data-rich proxy for NBA jerseys, but it's not as accurate as I'd like, and is quite sensitive to initialization
+- `notebooks/qwen3vl_nfl_sft.ipynb`: I perform supervised fine-tuning on Qwen3-VL using QLoRA with the NFL jersey dataset
 
 <img src="https://imgur.com/rWyuvz3.gif" alt="tracking demo" width="50%" height="50%">
 
